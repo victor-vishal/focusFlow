@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FocusFlow — Premium Pomodoro & Focus Suite</title>
+  
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#38bdf8">
+  <meta name="color-scheme" content="dark">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+    // Early theme check
+    const colorScheme = localStorage.getItem("color-scheme");
+    if (colorScheme === 'light') {
+        document.documentElement.classList.remove('dark');
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="relative flex flex-col min-h-screen selection:bg-sky-500 selection:text-white">
+
+  <!-- Ambient Decorative Background Glows -->
+  <div class="pointer-events-none fixed inset-0 overflow-hidden z-0">
+    <div class="absolute -top-40 left-1/4 w-96 h-96 bg-sky-500/10 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/3 -right-20 w-[450px] h-[450px] bg-indigo-500/10 rounded-full blur-[100px]"></div>
+    <div class="absolute -bottom-20 left-1/3 w-[500px] h-[500px] bg-cyan-600/10 rounded-full blur-[120px]"></div>
+  </div>
+
+  <!-- Main Container -->
+  <div class="relative z-10 flex flex-col min-h-screen w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- 1. Header Navigation -->
+    <header class="glass-card rounded-2xl px-6 py-4 mb-8 flex items-center justify-between">
+      <!-- Left: Logo & Title -->
+      <div class="flex items-center gap-3.5 group cursor-pointer">
+        <div class="relative flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-sky-400 p-[1.5px] shadow-lg shadow-sky-500/20 group-hover:shadow-sky-500/40 transition-all duration-300">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+            <svg class="w-5 h-5 text-sky-400 transform group-hover:rotate-45 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="9"/>
+              <polyline points="12 7 12 12 15 15"/>
+            </svg>
+          </div>
+        </div>
+        <div class="flex flex-col">
+          <div class="flex items-center gap-2">
+            <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-slate-400 bg-clip-text text-transparent">FocusFlow</span>
+          </div>
+          <span class="text-[11px] text-slate-400 -mt-0.5">Deep Work & Mindfulness Studio</span>
+        </div>
+      </div>
+
+      <!-- Right: Action Buttons -->
+      <div class="flex items-center gap-2.5">
+        <button id="settings-btn" class="p-2.5 rounded-xl text-slate-300 hover:text-white bg-slate-800/40 hover:bg-slate-700/60 border border-slate-700/50 hover:border-slate-600 transition-all duration-200" title="Settings">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+
+        <button id="theme-toggle" class="p-2.5 rounded-xl text-slate-300 hover:text-amber-300 bg-slate-800/40 hover:bg-slate-700/60 border border-slate-700/50 hover:border-slate-600 transition-all duration-200" title="Toggle Light/Dark Theme">
+          <svg id="moon-icon" class="w-5 h-5 transition-transform hover:rotate-12 duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+          </svg>
+          <svg id="sun-icon" class="w-5 h-5 transition-transform hover:rotate-12 duration-300 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. Main Dashboard (2-Column Grid on Desktop) -->
+    <main class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-8">
+
+      <!-- LEFT COLUMN: Action Center (Cols 7 on Desktop) -->
+      <section class="lg:col-span-7 flex flex-col gap-8">
+
+        <!-- Timer Panel -->
+        <div class="glass-card rounded-3xl p-8 relative overflow-hidden flex flex-col items-center">
+          <div class="absolute -top-24 left-1/2 -translate-x-1/2 w-64 h-32 bg-sky-500/20 rounded-full blur-2xl pointer-events-none"></div>
+
+          <!-- Top: Mode Buttons -->
+          <div class="inline-flex p-1.5 rounded-2xl bg-slate-900/80 border border-slate-800/80 backdrop-blur-md mb-9 relative z-10">
+            <button class="mode-btn active px-5 py-2 rounded-xl text-sm font-semibold tracking-wide bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-lg shadow-sky-500/25 transition-all" data-mode="WORK">
+              Pomodoro
+            </button>
+            <button class="mode-btn px-5 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors" data-mode="SHORT_BREAK">
+              Short Break
+            </button>
+            <button class="mode-btn px-5 py-2 rounded-xl text-sm font-medium text-slate-400 hover:text-slate-200 transition-colors" data-mode="LONG_BREAK">
+              Long Break
+            </button>
+          </div>
+
+          <!-- Middle: Circular Progress Ring with Time Display -->
+          <div class="relative flex items-center justify-center my-3">
+            <svg class="w-72 h-72 sm:w-80 sm:h-80" viewBox="0 0 280 280">
+              <defs>
+                <linearGradient id="timerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#38bdf8" />
+                  <stop offset="60%" stop-color="#6366f1" />
+                  <stop offset="100%" stop-color="#0ea5e9" />
+                </linearGradient>
+                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                  <feDropShadow dx="0" dy="0" stdDeviation="6" flood-color="#38bdf8" flood-opacity="0.45"/>
+                </filter>
+              </defs>
+              <circle cx="140" cy="140" r="120" stroke="rgba(255, 255, 255, 0.05)" stroke-width="10" fill="transparent" class="progress-ring__circle-bg"/>
+              <circle class="timer-ring-circle progress-ring__circle" cx="140" cy="140" r="120" stroke="url(#timerGradient)" stroke-width="10" 
+                      stroke-dasharray="753.98" stroke-dashoffset="0" stroke-linecap="round" fill="transparent" filter="url(#glow)"/>
+            </svg>
+
+            <!-- Center Time Display -->
+            <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+              <span id="time-display" class="font-mono text-6xl sm:text-7xl font-bold tracking-tight text-white drop-shadow-md">25:00</span>
+              <div id="status-display" class="mt-1 mb-2 text-xs text-sky-400 font-semibold tracking-widest uppercase">Work Session</div>
+              
+              <div id="active-task-container" class="mt-1 flex items-center gap-2 px-3.5 py-1 rounded-full bg-sky-500/10 border border-sky-500/20 text-sky-300 text-xs font-medium" style="display: none;">
+                <span class="w-1.5 h-1.5 rounded-full bg-sky-400 animate-ping"></span>
+                <span><strong id="active-task-display" class="text-white font-semibold"></strong></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom: Action Controls -->
+          <div class="flex items-center gap-4 mt-8 w-full max-w-xs">
+            <button id="start-btn" class="flex-1 py-3.5 px-6 rounded-2xl text-white font-bold text-base accent-glow-btn flex items-center justify-center gap-2">
+              <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <span id="start-btn-text">Start</span>
+            </button>
+            <button id="reset-btn" class="py-3.5 px-5 rounded-2xl text-slate-300 hover:text-white bg-slate-800/60 hover:bg-slate-700/70 border border-slate-700/60 font-semibold text-sm transition-all duration-200 flex items-center justify-center gap-1.5 hover:border-slate-500">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+              </svg>
+              <span>Reset</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tasks Panel -->
+        <div class="glass-card rounded-3xl p-7 flex flex-col">
+          <!-- Tasks Header -->
+          <div class="flex items-center justify-between mb-5">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 11l3 3L22 4"/>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+                </svg>
+              </div>
+              <h2 class="text-lg font-bold text-white tracking-wide">Tasks</h2>
+            </div>
+            <span class="text-xs text-slate-400">Press enter to add</span>
+          </div>
+
+          <!-- Input Field with Add Button -->
+          <div class="flex items-center gap-2 mb-6">
+            <div class="relative flex-1">
+              <input type="text" id="new-task-input" placeholder="What are you working on?" 
+                     class="w-full bg-slate-900/70 border border-slate-700/70 focus:border-sky-500/80 focus:ring-2 focus:ring-sky-500/20 rounded-2xl py-3 pl-4 pr-10 text-sm text-white placeholder-slate-500 outline-none transition-all duration-200">
+            </div>
+            <button id="add-task-btn" class="bg-sky-500 hover:bg-sky-400 text-slate-950 font-bold px-5 py-3 rounded-2xl text-sm transition-all duration-200 shadow-md shadow-sky-500/20 flex items-center gap-1">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add</span>
+            </button>
+          </div>
+
+          <!-- Task List Items -->
+          <div id="task-list" class="flex flex-col gap-3">
+             <!-- JS will populate -->
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT COLUMN: Environment & Review (Cols 5 on Desktop) -->
+      <section class="lg:col-span-5 flex flex-col gap-8">
+
+        <!-- Ambient Mixer Panel -->
+        <div class="glass-card rounded-3xl p-7 flex flex-col">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M9 18V5l12-2v13"></path>
+                  <circle cx="6" cy="18" r="3"></circle>
+                  <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+              </div>
+              <h2 class="text-lg font-bold text-white tracking-wide">Ambient Mixer</h2>
+            </div>
+          </div>
+
+          <!-- Sound Channels (4 Channels) -->
+          <div class="space-y-4 sound-controls">
+
+            <!-- Channel 1: Rain -->
+            <div class="sound-channel p-3.5 rounded-2xl bg-slate-800/30 border border-slate-700/40 hover:border-slate-600 transition-all">
+              <div class="flex items-center justify-between mb-2.5">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-sky-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 00-9.78 2.096A4.001 4.001 0 003 15z" />
+                    </svg>
+                  </span>
+                  <span class="text-sm font-semibold text-slate-200">Rain & Thunder</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" data-sound="rain" class="sr-only peer">
+                  <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                </label>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="range" min="0" max="100" value="50" class="w-full volume-slider" data-target="rain" disabled>
+              </div>
+            </div>
+
+            <!-- Channel 2: Wind -->
+            <div class="sound-channel p-3.5 rounded-2xl bg-slate-800/30 border border-slate-700/40 hover:border-slate-600 transition-all">
+              <div class="flex items-center justify-between mb-2.5">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </span>
+                  <span class="text-sm font-medium text-slate-400">Breeze & Wind</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" data-sound="wind" class="sr-only peer">
+                  <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                </label>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="range" min="0" max="100" value="50" class="w-full volume-slider" data-target="wind" disabled>
+              </div>
+            </div>
+
+            <!-- Channel 3: Fire -->
+            <div class="sound-channel p-3.5 rounded-2xl bg-slate-800/30 border border-slate-700/40 hover:border-slate-600 transition-all">
+              <div class="flex items-center justify-between mb-2.5">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-amber-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 18.657A8 8 0 016.343 7.343S7 9 9 10c0-2 .5-5 2.986-7C14 5 16.09 5.777 17.656 7.343A7.975 7.975 0 0120 13a7.975 7.975 0 01-2.343 5.657z" />
+                    </svg>
+                  </span>
+                  <span class="text-sm font-semibold text-slate-200">Campfire Ember</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" data-sound="fire" class="sr-only peer">
+                  <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                </label>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="range" min="0" max="100" value="50" class="w-full volume-slider" data-target="fire" disabled>
+              </div>
+            </div>
+
+            <!-- Channel 4: White Noise -->
+            <div class="sound-channel p-3.5 rounded-2xl bg-slate-800/30 border border-slate-700/40 hover:border-slate-600 transition-all">
+              <div class="flex items-center justify-between mb-2.5">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-slate-400">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                  </span>
+                  <span class="text-sm font-medium text-slate-400">White Noise</span>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                  <input type="checkbox" data-sound="noise" class="sr-only peer">
+                  <div class="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-sky-500"></div>
+                </label>
+              </div>
+              <div class="flex items-center gap-3">
+                <input type="range" min="0" max="100" value="50" class="w-full volume-slider" data-target="noise" disabled>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Session Tracker Panel -->
+        <div class="glass-card rounded-3xl p-7 flex flex-col">
+          <div class="flex items-center justify-between mb-6">
+            <div class="flex items-center gap-2.5">
+              <div class="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+              </div>
+              <h2 class="text-lg font-bold text-white tracking-wide">Session Tracker</h2>
+            </div>
+            <span class="text-xs text-slate-400 font-medium">Last 7 Days</span>
+          </div>
+
+          <!-- Two Stat Boxes Side-by-Side -->
+          <div class="grid grid-cols-2 gap-4 mb-7">
+            <!-- Box 1: Today -->
+            <div class="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 flex flex-col">
+              <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Today</span>
+              <div class="flex items-baseline gap-1.5 mt-1.5">
+                <span id="today-count" class="text-3xl font-extrabold text-white font-mono">0</span>
+                <span class="text-xs text-sky-400 font-semibold">sessions</span>
+              </div>
+            </div>
+
+            <!-- Box 2: Streak -->
+            <div class="p-4 rounded-2xl bg-slate-800/40 border border-slate-700/50 flex flex-col">
+              <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Streak</span>
+              <div class="flex items-baseline gap-1.5 mt-1.5">
+                <span id="streak-count" class="text-3xl font-extrabold text-amber-400 font-mono">0</span>
+                <span class="text-xs text-slate-300 font-semibold">Days</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sleek CSS Bar Chart (7 Days Activity) -->
+          <div class="flex flex-col">
+            <div class="text-xs font-medium text-slate-400 mb-3 flex justify-between">
+              <span>Activity Distribution</span>
+            </div>
+            <div id="week-chart" class="h-32 flex items-end justify-between gap-2.5 pt-4 pb-1 border-b border-slate-700/40 px-1">
+              <!-- JS populated -->
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <!-- 3. Settings Modal (Hidden by default) -->
+  <div id="settings-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay transition-opacity duration-300 hidden">
+    <!-- Click backdrop to close -->
+    <div id="close-settings-backdrop" class="absolute inset-0"></div>
+
+    <div class="relative z-10 w-full max-w-md glass-card rounded-3xl p-7 border border-slate-700/60 shadow-2xl animate-fade-in-up">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-5 border-b border-slate-700/50">
+        <div class="flex items-center gap-3">
+          <div class="p-2 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Timer Settings</h3>
+            <p class="text-xs text-slate-400">Configure your intervals & preferences</p>
+          </div>
+        </div>
+        <button id="close-settings" class="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800/40 hover:bg-slate-700/60 border border-slate-700/50 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Settings Inputs: Durations -->
+      <div class="py-5 space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Work Session (Minutes)</label>
+          <div class="relative">
+            <input type="number" id="work-duration" value="25" min="1" max="90" 
+                   class="w-full bg-slate-900/80 border border-slate-700/70 focus:border-sky-500 rounded-xl py-2.5 px-4 font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-mono">min</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Short Break (Minutes)</label>
+          <div class="relative">
+            <input type="number" id="short-break-duration" value="5" min="1" max="30" 
+                   class="w-full bg-slate-900/80 border border-slate-700/70 focus:border-sky-500 rounded-xl py-2.5 px-4 font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-mono">min</span>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">Long Break (Minutes)</label>
+          <div class="relative">
+            <input type="number" id="long-break-duration" value="15" min="1" max="60" 
+                   class="w-full bg-slate-900/80 border border-slate-700/70 focus:border-sky-500 rounded-xl py-2.5 px-4 font-mono text-sm text-white focus:outline-none focus:ring-2 focus:ring-sky-500/20">
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-xs text-slate-500 font-mono">min</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-4 border-t border-slate-700/50 flex items-center justify-end gap-3">
+        <button id="save-settings-btn" class="px-5 py-2.5 rounded-xl text-sm font-bold text-white accent-glow-btn">
+          Save Changes
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
