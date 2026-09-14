@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GradeSync — AWS Student Records Platform</title>
+  <meta name="description" content="Upload student records to AWS S3, processed by Lambda and stored in DynamoDB with SNS email notifications.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Ambient Background -->
+  <div class="ambient" aria-hidden="true">
+    <div class="glow-1"></div>
+    <div class="glow-2"></div>
+    <div class="glow-3"></div>
+  </div>
+
+  <div class="page-wrapper">
+
+    <!-- ── Header ─────────────────────────────────────────────────────────── -->
+    <header class="glass-card fade-in">
+      <div class="logo-wrap">
+        <div class="logo-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+            <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </div>
+        <div>
+          <div class="logo-title">GradeSync</div>
+          <div class="logo-sub">AWS Student Records Platform</div>
+        </div>
+      </div>
+
+      <div class="service-badges" aria-label="AWS services used">
+        <span class="badge badge-s3">☁ S3</span>
+        <span class="badge badge-lambda">λ Lambda</span>
+        <span class="badge badge-dynamo">◈ DynamoDB</span>
+        <span class="badge badge-sns">✉ SNS</span>
+      </div>
+
+      <a href="../index.html" class="header-back-btn" title="Back to FocusFlow">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        FocusFlow
+      </a>
+    </header>
+
+    <!-- ── Hero ───────────────────────────────────────────────────────────── -->
+    <section class="hero fade-in">
+      <h1>Student Records,<br>Powered by AWS</h1>
+      <p>Enter student details and marks below. The record is uploaded to <strong>S3</strong>, triggers a <strong>Lambda</strong> function, stored in <strong>DynamoDB</strong>, and sends an <strong>SNS</strong> email notification — all automatically.</p>
+      <div class="service-badges" style="justify-content:center">
+        <span class="badge badge-s3">☁ Amazon S3</span>
+        <span class="badge badge-lambda">λ AWS Lambda (Python)</span>
+        <span class="badge badge-dynamo">◈ DynamoDB</span>
+        <span class="badge badge-sns">✉ Amazon SNS</span>
+      </div>
+    </section>
+
+    <!-- ── Main Grid ───────────────────────────────────────────────────────── -->
+    <div class="main-grid">
+
+      <!-- LEFT: Form ─────────────────────────────────────────────────────── -->
+      <div class="glass-card form-card fade-in">
+        <h2><span class="dot" aria-hidden="true"></span>Student Record Form</h2>
+
+        <form id="grade-form" novalidate>
+
+          <!-- Student Info -->
+          <div class="form-section-label">Student Information</div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="name">Full Name <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="name" class="form-input" placeholder="e.g. Ravi Kumar" required autocomplete="off">
+            </div>
+            <div class="form-group">
+              <label for="roll-no">Roll Number <span class="req" aria-hidden="true">*</span></label>
+              <input type="number" id="roll-no" class="form-input" placeholder="e.g. 12" min="1" max="9999" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="class-section">Class &amp; Section <span class="req" aria-hidden="true">*</span></label>
+              <select id="class-section" class="form-select" required>
+                <option value="" disabled selected>Select class</option>
+                <optgroup label="Class 10">
+                  <option value="10-A">Class 10 — A</option>
+                  <option value="10-B">Class 10 — B</option>
+                  <option value="10-C">Class 10 — C</option>
+                </optgroup>
+                <optgroup label="Class 11">
+                  <option value="11-A">Class 11 — A</option>
+                  <option value="11-B">Class 11 — B</option>
+                  <option value="11-C">Class 11 — C</option>
+                </optgroup>
+                <optgroup label="Class 12">
+                  <option value="12-A">Class 12 — A</option>
+                  <option value="12-B">Class 12 — B</option>
+                  <option value="12-C">Class 12 — C</option>
+                </optgroup>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="academic-year">Academic Year <span class="req" aria-hidden="true">*</span></label>
+              <select id="academic-year" class="form-select" required>
+                <option value="" disabled selected>Select year</option>
+                <option value="2023-24">2023 – 24</option>
+                <option value="2024-25">2024 – 25</option>
+                <option value="2025-26" selected>2025 – 26</option>
+                <option value="2026-27">2026 – 27</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Subject Marks -->
+          <div class="form-section-label">Subject Marks (out of 100)</div>
+
+          <div class="form-row triple">
+            <div class="form-group">
+              <label for="math">Mathematics <span class="req" aria-hidden="true">*</span></label>
+              <div class="marks-wrap">
+                <input type="number" id="math" class="form-input" placeholder="0–100" min="0" max="100" required>
+                <span class="marks-unit">/100</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="science">Science <span class="req" aria-hidden="true">*</span></label>
+              <div class="marks-wrap">
+                <input type="number" id="science" class="form-input" placeholder="0–100" min="0" max="100" required>
+                <span class="marks-unit">/100</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="english">English <span class="req" aria-hidden="true">*</span></label>
+              <div class="marks-wrap">
+                <input type="number" id="english" class="form-input" placeholder="0–100" min="0" max="100" required>
+                <span class="marks-unit">/100</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="social">Social Studies <span class="req" aria-hidden="true">*</span></label>
+              <div class="marks-wrap">
+                <input type="number" id="social" class="form-input" placeholder="0–100" min="0" max="100" required>
+                <span class="marks-unit">/100</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="cs">Computer Science <span class="req" aria-hidden="true">*</span></label>
+              <div class="marks-wrap">
+                <input type="number" id="cs" class="form-input" placeholder="0–100" min="0" max="100" required>
+                <span class="marks-unit">/100</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Live Grade Preview -->
+          <div class="grade-preview" aria-live="polite">
+            <div>
+              <div class="pct-label">Overall Percentage</div>
+              <div class="pct-val" id="pct-val">—</div>
+            </div>
+            <div>
+              <div class="pct-label" style="text-align:right">Grade</div>
+              <div id="grade-badge" class="grade-badge-big grade-B">?</div>
+            </div>
+          </div>
+
+          <!-- Teacher & Remarks -->
+          <div class="form-section-label">Submission Details</div>
+
+          <div class="form-row full">
+            <div class="form-group">
+              <label for="teacher">Submitted By (Teacher Name) <span class="req" aria-hidden="true">*</span></label>
+              <input type="text" id="teacher" class="form-input" placeholder="e.g. Mrs. Sharma" required autocomplete="off">
+            </div>
+          </div>
+
+          <div class="form-row full">
+            <div class="form-group">
+              <label for="remarks">Remarks <span style="font-weight:400;color:var(--text-subtle)">(optional)</span></label>
+              <textarea id="remarks" class="form-textarea" placeholder="Any notes about this student's performance..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" id="submit-btn" class="submit-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/>
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+            </svg>
+            <span id="submit-text">Upload Record to S3</span>
+          </button>
+
+        </form>
+      </div>
+
+      <!-- RIGHT: Status Panel ─────────────────────────────────────────────── -->
+      <div class="glass-card status-panel fade-in">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          AWS Pipeline Status
+        </h3>
+
+        <!-- Idle placeholder -->
+        <div class="idle-state" id="idle-hint">
+          <div class="idle-icon" aria-hidden="true">☁️</div>
+          <p>Fill in the student form and click <strong>"Upload Record"</strong> to see the live AWS pipeline in action.</p>
+        </div>
+
+        <!-- Steps -->
+        <div class="pipeline" role="list" aria-label="Upload pipeline steps">
+
+          <div class="step" id="step-validate" role="listitem">
+            <div class="step-icon idle" aria-hidden="true">✓</div>
+            <div class="step-info">
+              <div class="step-label">Form Validation</div>
+              <div class="step-sub">Waiting...</div>
+            </div>
+          </div>
+
+          <div class="step" id="step-presign" role="listitem">
+            <div class="step-icon idle" aria-hidden="true">🔗</div>
+            <div class="step-info">
+              <div class="step-label">Presigned URL (Lambda)</div>
+              <div class="step-sub">Waiting for upload URL</div>
+            </div>
+          </div>
+
+          <div class="step" id="step-s3" role="listitem">
+            <div class="step-icon idle" aria-hidden="true">☁</div>
+            <div class="step-info">
+              <div class="step-label">Upload to Amazon S3</div>
+              <div class="step-sub">Waiting to upload</div>
+            </div>
+          </div>
+
+          <div class="step" id="step-lambda" role="listitem">
+            <div class="step-icon idle" aria-hidden="true">λ</div>
+            <div class="step-info">
+              <div class="step-label">Lambda Trigger (Python)</div>
+              <div class="step-sub">Lambda on standby</div>
+            </div>
+          </div>
+
+          <div class="step" id="step-dynamo" role="listitem">
+            <div class="step-icon idle" aria-hidden="true">◈</div>
+            <div class="step-info">
+              <div class="step-label">DynamoDB PutItem</div>
+              <div class="step-sub">No data yet</div>
+            </div>
+          </div>
+
+          <div class="step" id="step-sns" role="listitem">
+            <div class="step-icon idle" aria-hidden="true">✉</div>
+            <div class="step-info">
+              <div class="step-label">SNS Email Notification</div>
+              <div class="step-sub">No notification yet</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Success Card -->
+        <div class="success-card" id="success-card" role="status" aria-live="polite">
+          <h4>✅ Record Saved Successfully!</h4>
+          <div class="success-meta">
+            <div class="success-row"><span>Student</span><span id="sc-name">—</span></div>
+            <div class="success-row"><span>Roll No.</span><span id="sc-roll">—</span></div>
+            <div class="success-row"><span>Percentage</span><span id="sc-pct">—</span></div>
+            <div class="success-row"><span>Grade</span><span id="sc-grade">—</span></div>
+            <div class="success-row"><span>Record ID</span><span id="sc-id" style="font-size:0.7rem">—</span></div>
+            <div class="success-row"><span>Uploaded At</span><span id="sc-time">—</span></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── Architecture Diagram ───────────────────────────────────────────── -->
+    <section class="arch-section glass-card fade-in" aria-label="AWS architecture flow">
+      <h2>How It Works — AWS Architecture</h2>
+      <div class="arch-flow" role="img" aria-label="Data flow: Browser to S3 to Lambda to DynamoDB and SNS email">
+
+        <div class="arch-node node-browser">
+          <span class="node-icon" aria-hidden="true">🖥️</span>
+          <span class="node-label">Browser</span>
+          <span class="node-sub">GradeSync UI</span>
+        </div>
+
+        <div class="arch-arrow" aria-hidden="true">
+          <span>→</span>
+          <span>Presign API</span>
+        </div>
+
+        <div class="arch-node node-lambda">
+          <span class="node-icon" aria-hidden="true">λ</span>
+          <span class="node-label">Lambda</span>
+          <span class="node-sub">presign-url.py</span>
+        </div>
+
+        <div class="arch-arrow" aria-hidden="true">
+          <span>→</span>
+          <span>PUT JSON</span>
+        </div>
+
+        <div class="arch-node node-s3">
+          <span class="node-icon" aria-hidden="true">☁️</span>
+          <span class="node-label">Amazon S3</span>
+          <span class="node-sub">records/*.json</span>
+        </div>
+
+        <div class="arch-arrow" aria-hidden="true">
+          <span>→</span>
+          <span>Event trigger</span>
+        </div>
+
+        <div class="arch-node node-lambda">
+          <span class="node-icon" aria-hidden="true">λ</span>
+          <span class="node-label">Lambda</span>
+          <span class="node-sub">record_processor.py</span>
+        </div>
+
+        <div class="arch-arrow" aria-hidden="true">
+          <span>⬇</span>
+          <span></span>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center">
+          <div class="arch-node node-dynamo">
+            <span class="node-icon" aria-hidden="true">◈</span>
+            <span class="node-label">DynamoDB</span>
+            <span class="node-sub">student-records</span>
+          </div>
+          <div class="arch-node node-sns">
+            <span class="node-icon" aria-hidden="true">✉️</span>
+            <span class="node-label">SNS</span>
+            <span class="node-sub">grade-notifications</span>
+          </div>
+        </div>
+
+        <div class="arch-arrow" aria-hidden="true">
+          <span>→</span>
+          <span>Email</span>
+        </div>
+
+        <div class="arch-node node-email">
+          <span class="node-icon" aria-hidden="true">📧</span>
+          <span class="node-label">Admin Email</span>
+          <span class="node-sub">Subscriber</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ── Recent Records ─────────────────────────────────────────────────── -->
+    <section class="records-section glass-card fade-in" aria-label="Recent student records">
+      <h2>
+        <span class="live-dot" aria-hidden="true"></span>
+        Recent Records
+        <span style="font-size:0.75rem;font-weight:400;color:var(--text-subtle);margin-left:auto">From DynamoDB</span>
+      </h2>
+      <div class="records-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Roll No.</th>
+              <th>Class</th>
+              <th>Year</th>
+              <th>Percentage</th>
+              <th>Grade</th>
+              <th>Uploaded At</th>
+            </tr>
+          </thead>
+          <tbody id="records-tbody">
+            <tr><td colspan="7" class="empty-records">No records yet. Submit the first student record above!</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div><!-- /page-wrapper -->
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast" role="alert" aria-live="assertive">
+    <span class="toast-icon" id="toast-icon" aria-hidden="true">🎉</span>
+    <div>
+      <div class="toast-title" id="toast-title">Success</div>
+      <div class="toast-msg"   id="toast-msg"></div>
+    </div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

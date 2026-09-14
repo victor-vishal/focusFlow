@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AWS Learn — Coming Soon | FocusFlow</title>
+  <meta name="description" content="An interactive AWS learning platform with tutorials, documentation, and quizzes for S3, VPC, Lambda and more. Coming soon.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background:
+        radial-gradient(ellipse at 15% 20%, rgba(99,102,241,0.14) 0%, transparent 45%),
+        radial-gradient(ellipse at 85% 15%, rgba(168,85,247,0.12) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 90%, rgba(56,189,248,0.08) 0%, transparent 45%),
+        linear-gradient(180deg, #07091a 0%, #0d1130 55%, #07091a 100%);
+      background-attachment: fixed;
+      color: #f1f5f9;
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 24px;
+      overflow-x: hidden;
+    }
+
+    /* Animated orbs */
+    .orb { position: fixed; border-radius: 50%; filter: blur(80px); pointer-events: none; animation: float 8s ease-in-out infinite; }
+    .orb-1 { width: 350px; height: 350px; background: rgba(99,102,241,0.12); top: -80px; left: 10%; animation-delay: 0s; }
+    .orb-2 { width: 300px; height: 300px; background: rgba(168,85,247,0.10); top: 20%; right: -60px; animation-delay: -3s; }
+    .orb-3 { width: 280px; height: 280px; background: rgba(56,189,248,0.08); bottom: -60px; left: 30%; animation-delay: -5s; }
+    @keyframes float {
+      0%,100% { transform: translateY(0) scale(1); }
+      50%      { transform: translateY(-30px) scale(1.05); }
+    }
+
+    .back-btn {
+      position: fixed; top: 24px; left: 24px;
+      display: flex; align-items: center; gap: 8px;
+      padding: 9px 18px; border-radius: 12px;
+      background: rgba(15,23,42,0.65); border: 1px solid rgba(255,255,255,0.08);
+      backdrop-filter: blur(16px);
+      color: #94a3b8; font-size: 0.82rem; font-weight: 600;
+      text-decoration: none; transition: all 0.2s ease;
+    }
+    .back-btn:hover { color: #fff; border-color: rgba(255,255,255,0.18); }
+
+    .card {
+      position: relative; z-index: 10;
+      max-width: 680px; padding: 52px 44px;
+      background: rgba(13,17,40,0.7);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      backdrop-filter: blur(24px);
+      box-shadow: 0 30px 70px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.07);
+    }
+
+    .coming-icon {
+      width: 72px; height: 72px; border-radius: 20px;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 28px;
+      box-shadow: 0 0 40px rgba(99,102,241,0.4);
+      font-size: 2rem;
+    }
+
+    .pill {
+      display: inline-flex; align-items: center; gap: 7px;
+      padding: 6px 16px; border-radius: 20px;
+      background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25);
+      color: #a5b4fc; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
+      text-transform: uppercase; margin-bottom: 22px;
+    }
+    .pill-dot { width: 6px; height: 6px; border-radius: 50%; background: #818cf8; animation: blink 1.5s infinite; }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0.3; } }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem); font-weight: 900; letter-spacing: -0.04em; line-height: 1.1;
+      background: linear-gradient(135deg, #fff 0%, #c4b5fd 50%, #818cf8 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      margin-bottom: 16px;
+    }
+
+    .subtitle { color: #94a3b8; font-size: 0.98rem; line-height: 1.65; max-width: 480px; margin: 0 auto 36px; }
+
+    /* Topics preview */
+    .topics { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 36px; }
+    .topic-tag {
+      padding: 7px 16px; border-radius: 20px; font-size: 0.78rem; font-weight: 600;
+      border: 1px solid; cursor: default; transition: transform 0.2s ease;
+    }
+    .topic-tag:hover { transform: translateY(-3px); }
+    .t-s3     { background: rgba(251,146,60,0.10); border-color: rgba(251,146,60,0.25); color: #fb923c; }
+    .t-lambda { background: rgba(167,139,250,0.10); border-color: rgba(167,139,250,0.25); color: #a78bfa; }
+    .t-vpc    { background: rgba(52,211,153,0.10); border-color: rgba(52,211,153,0.25); color: #34d399; }
+    .t-dynamo { background: rgba(56,189,248,0.10); border-color: rgba(56,189,248,0.25); color: #38bdf8; }
+    .t-sns    { background: rgba(248,113,113,0.10); border-color: rgba(248,113,113,0.25); color: #f87171; }
+    .t-iam    { background: rgba(251,191,36,0.10); border-color: rgba(251,191,36,0.25); color: #fbbf24; }
+    .t-ec2    { background: rgba(99,102,241,0.10); border-color: rgba(99,102,241,0.25); color: #818cf8; }
+    .t-cli    { background: rgba(15,23,42,0.50); border-color: rgba(255,255,255,0.12); color: #94a3b8; }
+
+    .divider { height: 1px; background: rgba(255,255,255,0.06); margin: 30px 0; }
+
+    .features { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; text-align: left; margin-bottom: 32px; }
+    @media (max-width: 480px) { .features { grid-template-columns: 1fr; } }
+    .feature { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); }
+    .feat-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .feat-title { font-size: 0.82rem; font-weight: 700; color: #e2e8f0; }
+    .feat-desc  { font-size: 0.73rem; color: #64748b; margin-top: 2px; line-height: 1.5; }
+
+    .back-home-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 13px 28px; border-radius: 14px;
+      background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+      color: #fff; font-size: 0.9rem; font-weight: 700;
+      text-decoration: none; border: none; cursor: pointer;
+      box-shadow: 0 0 28px rgba(99,102,241,0.35), 0 4px 14px rgba(0,0,0,0.3);
+      transition: all 0.25s ease;
+    }
+    .back-home-btn:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(99,102,241,0.5), 0 6px 18px rgba(0,0,0,0.4); }
+
+    .footer-note { position: relative; z-index: 10; margin-top: 24px; font-size: 0.75rem; color: #334155; }
+  </style>
+</head>
+<body>
+
+  <!-- Animated orbs -->
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
+  <div class="orb orb-3" aria-hidden="true"></div>
+
+  <!-- Back button -->
+  <a href="../index.html" class="back-btn" title="Back to FocusFlow">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"/></svg>
+    FocusFlow
+  </a>
+
+  <div class="card" role="main">
+
+    <div class="coming-icon" aria-hidden="true">📚</div>
+
+    <div class="pill" role="status">
+      <span class="pill-dot" aria-hidden="true"></span>
+      In Development
+    </div>
+
+    <h1>AWS Learning<br>Platform</h1>
+
+    <p class="subtitle">
+      Interactive tutorials, step-by-step guides, and quizzes for core AWS services.
+      Learn S3, Lambda, VPC, DynamoDB, IAM and more — right in the browser.
+    </p>
+
+    <!-- Topics preview -->
+    <div class="topics" aria-label="Planned topics">
+      <span class="topic-tag t-s3">☁ Amazon S3</span>
+      <span class="topic-tag t-s3">🖥 S3 via CLI</span>
+      <span class="topic-tag t-lambda">λ AWS Lambda</span>
+      <span class="topic-tag t-vpc">🌐 VPC & Subnets</span>
+      <span class="topic-tag t-dynamo">◈ DynamoDB</span>
+      <span class="topic-tag t-sns">✉ SNS & SQS</span>
+      <span class="topic-tag t-iam">🔐 IAM Roles</span>
+      <span class="topic-tag t-ec2">⚙ EC2 Basics</span>
+      <span class="topic-tag t-cli">💻 AWS CLI</span>
+    </div>
+
+    <div class="divider" aria-hidden="true"></div>
+
+    <!-- Planned features -->
+    <div class="features" aria-label="Planned features">
+      <div class="feature">
+        <span class="feat-icon" aria-hidden="true">📖</span>
+        <div>
+          <div class="feat-title">Step-by-step Guides</div>
+          <div class="feat-desc">Clear tutorials with screenshots and CLI commands</div>
+        </div>
+      </div>
+      <div class="feature">
+        <span class="feat-icon" aria-hidden="true">🧠</span>
+        <div>
+          <div class="feat-title">Interactive Quizzes</div>
+          <div class="feat-desc">Test your knowledge after each module</div>
+        </div>
+      </div>
+      <div class="feature">
+        <span class="feat-icon" aria-hidden="true">🏗️</span>
+        <div>
+          <div class="feat-title">Architecture Diagrams</div>
+          <div class="feat-desc">Visual explanations of AWS service relationships</div>
+        </div>
+      </div>
+      <div class="feature">
+        <span class="feat-icon" aria-hidden="true">💻</span>
+        <div>
+          <div class="feat-title">CLI Cheatsheets</div>
+          <div class="feat-desc">Copy-paste commands for common AWS tasks</div>
+        </div>
+      </div>
+    </div>
+
+    <a href="../index.html" class="back-home-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Back to FocusFlow
+    </a>
+
+  </div>
+
+  <p class="footer-note" aria-label="Coming soon notice">Coming soon — stay tuned 🚀</p>
+
+</body>
+</html>
