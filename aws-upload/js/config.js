@@ -1,16 +1,15 @@
 // ─── GradeSync Config ──────────────────────────────────────────────────────
-// Replace these values after deploying your AWS backend (Phase 2).
+// AWS backend is live — real uploads to S3 → Lambda → DynamoDB → SNS
 
 const CONFIG = {
-  // API Gateway base URL — fill this in after deploying
-  // Example: "https://abc123xyz.execute-api.ap-south-1.amazonaws.com/prod"
-  API_BASE_URL: "",
+  // API Gateway base URL
+  API_BASE_URL: "https://q3t4kjyuna.execute-api.ap-south-1.amazonaws.com",
 
-  // S3 bucket region (for display/reference only)
+  // S3 bucket region
   AWS_REGION: "ap-south-1",
 
-  // Set to true to use mock/demo mode (no real AWS calls)
-  DEMO_MODE: true,
+  // false = use real AWS calls
+  DEMO_MODE: false,
 };
 
 export default CONFIG;
